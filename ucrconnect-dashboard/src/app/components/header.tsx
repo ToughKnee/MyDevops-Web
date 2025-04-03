@@ -23,7 +23,8 @@ export default function Header() {
             '/content': 'Contenido',
             '/analytics': 'Anal\u00EDticas',
             '/notifications': 'Notificaciones',
-            '/settings': 'Configuraci\u00F3n'
+            '/settings': 'Configuraci\u00F3n',
+            '/profile': 'Perfil'
         };
 
         return pathTitles[pathname] || ' ';
