@@ -93,5 +93,78 @@ export default function Header() {
         };
     }, []);
 
-    return (<div></div>);
+    return (
+        <header className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
+
+            {/* Section Title */}
+            <div className="flex items-center">
+                <h1 className="text-blue-950 text-2xl font-semibold">
+                    {getSectionTitle()}
+                </h1>
+            </div>
+
+            {/* Icon Section */}
+            <div className="flex items-center gap-6">
+                {/* Settings button */}
+                <button
+                    onClick={handleSettingsClick}
+                    className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray hover:text-gray-150
+                    cursor-pointer transition-colors">
+                    <img src="https://www.svgrepo.com/show/372653/settings.svg" className="w-2/3 h-2/3" alt="Settings" />
+                </button>
+
+                {/* Notifications button */}
+                <button
+                    onClick={handleNotificationsClick}
+                    className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray hover:text-gray-150
+                    cursor-pointer transition-colors">
+                    <img src="https://www.svgrepo.com/show/505296/bell.svg" className="w-2/3 h-2/3 " alt="Notifications" />
+                </button>
+
+                {/* Profile button */}
+                <Link href="/profile">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 hover:bg-gray-200 flex items-center justify-center
+                    cursor-pointer transition-colors">
+                        <img src="https://www.svgrepo.com/show/532363/user-alt-1.svg" className="w-2/3 h-2/3" alt="profile" />
+                    </div>
+                </Link>
+            </div>
+
+            {/* Settings dropdown */}
+            {openSettings && (
+                <div className={`absolute top-16 right-16 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
+                transition-opacity duration-150 ${settingsVisible ? 'opacity-100' : 'opacity-0'}`}>
+                    {/* Header section */}
+                    <div className="flex items-center justify-between bg-gray-200 text-black px-4 py-2">
+                        <h3 className="text-sm font-medium">Configuraciones</h3>
+                    </div>
+
+                    {/* Content section */}
+                    <div className="py-2">
+                        <Link href="/settings" className="text-gray text-sm py-2 px-4 block hover:bg-gray-100">
+                            Editar configuraciones
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {/* Notifications dropdown */}
+            {openNotifications && (
+                <div className={`absolute top-16 right-16 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
+                transition-opacity duration-150 ${notificationsVisible ? 'opacity-100' : 'opacity-0'}`}>
+                    {/* Header section */}
+                    <div className="flex items-center justify-between bg-gray-200 text-black px-4 py-2">
+                        <h3 className="text-sm font-medium ">Notifications</h3>
+                        <Link href="/settings/notifications" className="text-xs text-black hover:underline">
+                            Configurar
+                        </Link>
+                    </div>
+                    {/* Content section */}
+                    <div className="py-10 text-center">
+                        <p className="text-gray-700">Sin notificaciones.</p>
+                    </div>
+                </div>
+            )}
+        </header>
+    );
 }
