@@ -142,7 +142,7 @@ export default function Header() {
 
                     {/* Content section */}
                     <div className="py-2">
-                        <Link href="/settings" className="text-gray text-sm py-2 px-4 block hover:bg-gray-100">
+                        <Link href="/settings" className="text-black text-sm py-2 px-4 block hover:bg-gray-100">
                             Editar configuraciones
                         </Link>
                     </div>
