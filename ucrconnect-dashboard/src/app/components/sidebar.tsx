@@ -26,7 +26,7 @@ export default function Sidebar() {
     };
 
     const navItems = [
-        { name: 'General', path: '/', icon: 'https://www.svgrepo.com/show/371938/house.svg' },
+        { name: 'General', path: '/dashboard', icon: 'https://www.svgrepo.com/show/371938/house.svg' },
         { name: 'Usuarios', path: '/users', icon: 'https://www.svgrepo.com/show/535711/user.svg' },
         { name: 'Contenido', path: '/content', icon: 'https://www.svgrepo.com/show/522137/grid.svg' },
         { name: 'Anal\u00EDticas', path: '/analytics', icon: 'https://www.svgrepo.com/show/491241/graph-asc.svg' },
@@ -51,7 +51,7 @@ export default function Sidebar() {
                 {/* Main Title */}
                 {isOpen && (
                     <div className="flex justify-between items-center px-6 pb-5">
-                        <Link href="/" className="text-blue-950 text-xl">
+                        <Link href="/dashboard" className="text-blue-950 text-xl">
                             UCRConnect
                         </Link>
                         <button
@@ -109,6 +109,11 @@ export default function Sidebar() {
     const mobileSidebarContent = (
         <nav className="flex flex-col h-full">
             <div className="flex-1 py-4">
+                <div className="flex justify-between items-center p-4 border-b border-gray-200">
+                    <Link href="/dashboard" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                        UCRConnect
+                    </Link>
+                </div>
                 <ul className="space-y-1">
                     {navItems.map((item) => {
                         const active = isActive(item.path);
@@ -178,7 +183,7 @@ export default function Sidebar() {
                     {/* Menu */}
                     <div className="w-4/5 bg-white h-full shadow-lg z-30">
                         <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                            <Link href="/" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href="/dashboard" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
                                 UCRConnect
                             </Link>
                         </div>
