@@ -1,4 +1,5 @@
 'use client';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
 export default function Dashboard() {
   return (
@@ -6,26 +7,47 @@ export default function Dashboard() {
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <h1 className="text-2xl font-semibold text-gray-800 mb-4">Vista General</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-            <h3 className="text-lg font-medium text-blue-800">Usuarios</h3>
-            <p className="text-3xl font-bold text-blue-600 mt-2">1,234</p>
-            <p className="text-sm text-blue-500 mt-1">+12% desde el mes pasado</p>
-          </div>
-          
-          <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-            <h3 className="text-lg font-medium text-green-800">Contenido</h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">567</p>
-            <p className="text-sm text-green-500 mt-1">+8% desde el mes pasado</p>
-          </div>
-          
-          <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-            <h3 className="text-lg font-medium text-purple-800">Interacciones</h3>
-            <p className="text-3xl font-bold text-purple-600 mt-2">8,901</p>
-            <p className="text-sm text-purple-500 mt-1">+15% desde el mes pasado</p>
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-6xl">
+            {/* Usuarios */}
+            <div className="p-6 rounded-[25px] flex flex-col justify-between h-[150px]" style={{ background: 'linear-gradient(114deg, #249DD8 3.12%, rgba(65, 173, 231, 0.75) 98.3%)' }}>
+              <h3 className="text-lg font-medium text-white">Usuarios</h3>
+              <div className="flex items-start">
+                <p className="text-5xl font-bold text-white">924</p>
+                <div className="flex items-center bg-green-100 text-green-800 px-2 py-0.5 rounded-md ml-2 text-sm font-medium">
+                  <ArrowUp className="w-3 h-3" />
+                  <span className="ml-1">+9%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Reportes */}
+            <div className="p-6 border border-gray-300 rounded-[25px] flex flex-col justify-between h-[150px] bg-white">
+              <h3 className="text-lg font-medium text-gray-800">Reportes</h3>
+              <div className="flex items-start">
+                <p className="text-5xl font-bold text-gray-900">12</p>
+                <div className="flex items-center bg-red-100 text-red-800 px-2 py-0.5 rounded-md ml-2 text-sm font-medium">
+                  <ArrowDown className="w-3 h-3" />
+                  <span className="ml-1">-34%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Posts */}
+            <div className="p-6 border border-gray-300 rounded-[25px] flex flex-col justify-between h-[150px] bg-white">
+              <h3 className="text-lg font-medium text-gray-800">Posts</h3>
+              <div className="flex items-start">
+                <p className="text-5xl font-bold text-gray-900">2678</p>
+                <div className="flex items-center bg-green-100 text-green-800 px-2 py-0.5 rounded-md ml-2 text-sm font-medium">
+                  <ArrowUp className="w-3 h-3" />
+                  <span className="ml-1">+43%</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );
-} 
+}
