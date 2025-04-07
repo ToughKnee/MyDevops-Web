@@ -18,7 +18,7 @@ export default function Header() {
     // Map paths to section titles
     const getSectionTitle = () => {
         const pathTitles: Record<string, string> = {
-            '/': 'Vista General',
+            '/dashboard': 'Vista General',
             '/users': 'Usuarios',
             '/content': 'Contenido',
             '/analytics': 'Anal\u00EDticas',
