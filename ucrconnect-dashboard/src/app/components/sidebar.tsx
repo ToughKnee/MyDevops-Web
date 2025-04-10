@@ -7,6 +7,7 @@ export default function Sidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
 
     // Initialize isOpen from localStorage
     useEffect(() => {
@@ -36,7 +37,11 @@ export default function Sidebar() {
 
     // Toggle sidebar function
     const toggleSidebar = () => {
+        setIsAnimating(true);
         setIsOpen(!isOpen);
+        setTimeout(() => {
+            setIsAnimating(false);
+        }, 300);
     };
 
     // Toggle mobile menu function
@@ -49,23 +54,21 @@ export default function Sidebar() {
         <nav className="flex flex-col h-full">
             <div className="flex-1 py-4">
                 {/* Main Title */}
-                {isOpen && (
-                    <div className="flex justify-between items-center px-6 pb-5">
-                        <Link href="/" className="text-blue-950 text-xl">
-                            UCR Connect
-                        </Link>
-                        <button
-                            onClick={toggleSidebar}
-                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                        >
-                            <span>
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                )}
+                <div className={`flex justify-between items-center px-6 pb-5 ${!isOpen ? 'hidden' : ''}`}>
+                    <Link href="/" className="text-blue-950 text-xl whitespace-nowrap overflow-hidden text-ellipsis">
+                        UCR Connect
+                    </Link>
+                    <button
+                        onClick={toggleSidebar}
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none flex-shrink-0"
+                    >
+                        <span>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
 
                 {/* Collapsed state */}
                 {!isOpen && (
@@ -100,10 +103,10 @@ export default function Sidebar() {
                                 >
                                     <img
                                         src={item.icon}
-                                        className={`w-5 h-5 ${isOpen ? 'mr-3' : ''} ${active ? '' : 'opacity-60'}`}
+                                        className={`w-5 h-5 ${isOpen && !isAnimating ? 'mr-3' : ''} ${active ? '' : 'opacity-60'}`}
                                         alt={item.name}
                                     />
-                                    {isOpen && <span className={active ? 'font-bold' : ''}>{item.name}</span>}
+                                    {isOpen && !isAnimating && <span className={active ? 'font-bold' : ''}>{item.name}</span>}
                                 </Link>
                             </li>
                         );
@@ -151,7 +154,7 @@ export default function Sidebar() {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className={`hidden md:block ${isOpen ? 'w-64' : 'w-16'} bg-white border-r border-gray-200 h-full transition-all duration-300`}>
+            <aside className={`hidden md:block ${isOpen ? 'w-64' : 'w-16'} bg-white border-r border-gray-200 h-full transition-all duration-300 overflow-hidden`}>
                 {desktopSidebarContent}
             </aside>
 
