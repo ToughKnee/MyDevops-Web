@@ -52,7 +52,7 @@ export default function Sidebar() {
                 {isOpen && (
                     <div className="flex justify-between items-center px-6 pb-5">
                         <Link href="/" className="text-blue-950 text-xl">
-                            UCRConnect
+                            UCR Connect
                         </Link>
                         <button
                             onClick={toggleSidebar}
@@ -179,7 +179,7 @@ export default function Sidebar() {
                     <div className="w-4/5 bg-white h-full shadow-lg z-30">
                         <div className="flex justify-between items-center p-4 border-b border-gray-200">
                             <Link href="/" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                                UCRConnect
+                                UCR Connect
                             </Link>
                         </div>
                         {mobileSidebarContent}
