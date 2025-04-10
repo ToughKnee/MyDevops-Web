@@ -159,29 +159,33 @@ export default function Sidebar() {
             </aside>
 
             {/* Mobile Burger Button */}
-            <div className="md:hidden fixed top-20 right-4 z-30">
-                {!isMobileMenuOpen ? (
+            <div className="md:hidden fixed top-4 left-4 z-30">
+                {!isMobileMenuOpen && (
                     <button
                         onClick={toggleMobileMenu}
                         className="p-2 rounded-md bg-white shadow-md text-gray-700 focus:outline-none"
                     >
-                        {/* Icon */}
+                        {/* Burger Icon */}
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
                     </button>
-                ) : (
+                )}
+            </div>
+
+            {isMobileMenuOpen && (
+                <div className="md:hidden fixed top-4 right-4 z-30">
                     <button
                         onClick={toggleMobileMenu}
                         className="p-2 rounded-md bg-white shadow-md text-gray-700 focus:outline-none"
                     >
-                        {/* Icon */}
+                        {/* Close Icon */}
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
