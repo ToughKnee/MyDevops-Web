@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 export default function RegisterUser() {
   const [formData, setFormData] = useState({
@@ -12,7 +13,48 @@ export default function RegisterUser() {
 
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
+  const isFormValid =
+  formData.name.trim() !== '' &&
+  formData.password !== '' &&
+  formData.confirmPassword !== '' &&
+  formData.password === formData.confirmPassword &&
+  emailAvailable === true;
+
+  // Check if email is available
+  useEffect(() => {
+    setEmailAvailable(null);
+    const timeoutId = setTimeout(async () => {
+      if (!formData.email) return;
+  
+      try {
+        // Uncomment and adapt the following lines to use the actual API endpoint
+          //const res = await fetch(`/api/users/check-email?email=${formData.email}`);
+          //const data = await res.json();
+          //setEmailAvailable(data.available);
+
+        // Simulating an API call with a timeout
+        const res = await new Promise<{ available: boolean }>((resolve) => {
+          const yaRegistrados = ['admin@ejemplo.com', 'usuario@correo.com'];
+          setTimeout(() => {
+            resolve({ available: !yaRegistrados.includes(formData.email.toLowerCase()) });
+          }, 500);
+        });
+  
+        setEmailAvailable(res.available);
+        //---------------------------------------
+
+      } catch (error) {
+        console.error("Error al verificar el correo", error);
+        setEmailAvailable(null);
+      }
+    }, 500); // wait 500ms after the last keystroke
+  
+    return () => clearTimeout(timeoutId);
+  }, [formData.email]);
+
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -86,6 +128,15 @@ export default function RegisterUser() {
               required
               className="mt-1 w-full block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
+            {formData.email && (
+              <p className={`text-sm ${emailAvailable === true ? 'text-green-500' : 'text-red-500'}`}>
+                {emailAvailable === true
+                  ? 'Correo disponible'
+                  : emailAvailable === false
+                  ? 'Este correo ya está registrado'
+                  : ''}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700"> Contraseña </label>
@@ -118,7 +169,12 @@ export default function RegisterUser() {
           </div>
 
           <div className="flex justify-center">
-            <button type="submit" className="mt-2 w-auto py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 cursor-pointer hover:bg-blue-700 ">
+            <button 
+              type="submit" 
+              className="mt-2 w-auto py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!isFormValid}
+              title={!isFormValid ? 'Asegurese de completar todos los campos correctamente' : ''}
+            >
               Registrar usuario
             </button>
           </div>
