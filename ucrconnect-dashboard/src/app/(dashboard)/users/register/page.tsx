@@ -10,20 +10,50 @@ export default function RegisterUser() {
     confirmPassword: '',
   });
 
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if ((name === "password" || name === "confirmPassword")) {
+      const otherPassword = name === "password" ? formData.confirmPassword : formData.password;
+  
+      if (value && otherPassword && value !== otherPassword) {
+        setError("Las contraseñas no coinciden");
+      } else {
+        setError("");
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Las contraseñas no coinciden");
+      setError("Las contraseñas no coinciden");
       return;
     }
+    try {
+      
+      // Fetch API to register user
+      console.log(formData);
+      setSuccessMessage("Usuario registrado correctamente.");
+      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+      setError('');
 
-    // Fetch API to register user
-    console.log(formData);
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+    } catch (err) {
+      setError("Ocurrió un error al registrar el usuario.");
+    }
+    
   };
 
   return (
@@ -82,13 +112,17 @@ export default function RegisterUser() {
               required
               className="mt-1 w-full block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
+            {error && (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
           </div>
 
           <div className="flex justify-center">
-            <button type="submit" className="mt-2 w-auto py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button type="submit" className="mt-2 w-auto py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 cursor-pointer hover:bg-blue-700 ">
               Registrar usuario
             </button>
           </div>
+          {successMessage && <p className="text-green-600 text-sm mt-2">{successMessage}</p>}
         </form>
       </div>
     </div>
