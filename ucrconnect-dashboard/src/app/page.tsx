@@ -1,7 +1,6 @@
-import Image from "next/image";
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <h1>Title</h1>
-  );
+  // Redirect to the dashboard page
+  redirect('/dashboard');
 }
