@@ -7,6 +7,7 @@ export default function Sidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
 
     // Initialize isOpen from localStorage
     useEffect(() => {
@@ -36,7 +37,11 @@ export default function Sidebar() {
 
     // Toggle sidebar function
     const toggleSidebar = () => {
+        setIsAnimating(true);
         setIsOpen(!isOpen);
+        setTimeout(() => {
+            setIsAnimating(false);
+        }, 300);
     };
 
     // Toggle mobile menu function
@@ -49,19 +54,21 @@ export default function Sidebar() {
         <nav className="flex flex-col h-full">
             <div className="flex-1 py-4">
                 {/* Main Title */}
-                {isOpen && (
-                    <div className="flex justify-between items-center px-6 pb-5">
-                        <Link href="/dashboard" className="text-blue-950 text-xl">
-                            UCRConnect
-                        </Link>
-                        <button
-                            onClick={toggleSidebar}
-                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                        >
-                            <span className="text-xl">&lt;&lt;</span>
-                        </button>
-                    </div>
-                )}
+                <div className={`flex justify-between items-center px-6 pb-5 ${!isOpen ? 'hidden' : ''}`}>
+                    <Link href="/" className="text-blue-950 text-xl whitespace-nowrap overflow-hidden text-ellipsis">
+                        UCR Connect
+                    </Link>
+                    <button
+                        onClick={toggleSidebar}
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none flex-shrink-0"
+                    >
+                        <span>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
 
                 {/* Collapsed state */}
                 {!isOpen && (
@@ -70,7 +77,11 @@ export default function Sidebar() {
                             onClick={toggleSidebar}
                             className="text-gray-500 hover:text-gray-700 focus:outline-none"
                         >
-                            <span className="text-xl">&gt;&gt;</span>
+                            <span>
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                                </svg>
+                            </span>
                         </button>
                     </div>
                 )}
@@ -92,10 +103,10 @@ export default function Sidebar() {
                                 >
                                     <img
                                         src={item.icon}
-                                        className={`w-5 h-5 ${isOpen ? 'mr-3' : ''} ${active ? '' : 'opacity-60'}`}
+                                        className={`w-5 h-5 ${isOpen && !isAnimating ? 'mr-3' : ''} ${active ? '' : 'opacity-60'}`}
                                         alt={item.name}
                                     />
-                                    {isOpen && <span className={active ? 'font-bold' : ''}>{item.name}</span>}
+                                    {isOpen && !isAnimating && <span className={active ? 'font-bold' : ''}>{item.name}</span>}
                                 </Link>
                             </li>
                         );
@@ -148,34 +159,38 @@ export default function Sidebar() {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className={`hidden md:block ${isOpen ? 'w-64' : 'w-16'} bg-white border-r border-gray-200 h-full transition-all duration-300`}>
+            <aside className={`hidden md:block ${isOpen ? 'w-64' : 'w-16'} bg-white border-r border-gray-200 h-full transition-all duration-300 overflow-hidden`}>
                 {desktopSidebarContent}
             </aside>
 
             {/* Mobile Burger Button */}
-            <div className="md:hidden fixed top-20 right-4 z-30">
-                {!isMobileMenuOpen ? (
+            <div className="md:hidden fixed top-4 left-4 z-30">
+                {!isMobileMenuOpen && (
                     <button
                         onClick={toggleMobileMenu}
                         className="p-2 rounded-md bg-white shadow-md text-gray-700 focus:outline-none"
                     >
-                        {/* Icon */}
+                        {/* Burger Icon */}
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
                     </button>
-                ) : (
+                )}
+            </div>
+
+            {isMobileMenuOpen && (
+                <div className="md:hidden fixed top-4 right-4 z-30">
                     <button
                         onClick={toggleMobileMenu}
                         className="p-2 rounded-md bg-white shadow-md text-gray-700 focus:outline-none"
                     >
-                        {/* Icon */}
+                        {/* Close Icon */}
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
@@ -183,8 +198,8 @@ export default function Sidebar() {
                     {/* Menu */}
                     <div className="w-4/5 bg-white h-full shadow-lg z-30">
                         <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                            <Link href="/dashboard" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                                UCRConnect
+                            <Link href="/" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                                UCR Connect
                             </Link>
                         </div>
                         {mobileSidebarContent}
