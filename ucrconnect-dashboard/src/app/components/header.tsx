@@ -2,15 +2,19 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function Header() {
     // Panel states
     const [openSettings, setOpenSettings] = useState(false);
     const [openNotifications, setNotifications] = useState(false);
+    const [openProfile, setOpenProfile] = useState(false);
 
     // Animation states
     const [settingsVisible, setSettingsVisible] = useState(false);
     const [notificationsVisible, setNotificationsVisible] = useState(false);
+    const [profileVisible, setProfileVisible] = useState(false);
 
     // Get current path to determine section title
     const pathname = usePathname();
@@ -33,56 +37,124 @@ export default function Header() {
     // Refs for the animation timeouts
     const settingsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const notificationsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Function to handle opening settings and closing notifications
+    // Function to handle opening settings and closing other panels
     const handleSettingsClick = () => {
-        // If settings is already open, start closing animation
         if (openSettings) {
             setSettingsVisible(false);
             settingsTimeoutRef.current = setTimeout(() => {
                 setOpenSettings(false);
             }, 150);
         } else {
-            // If notifications is open, close it
             if (openNotifications) {
                 setNotificationsVisible(false);
                 notificationsTimeoutRef.current = setTimeout(() => {
                     setNotifications(false);
-                    // Then open settings
+                    setOpenSettings(true);
+                    setTimeout(() => setSettingsVisible(true), 50);
+                }, 150);
+            } else if (openProfile) {
+                setProfileVisible(false);
+                profileTimeoutRef.current = setTimeout(() => {
+                    setOpenProfile(false);
                     setOpenSettings(true);
                     setTimeout(() => setSettingsVisible(true), 50);
                 }, 150);
             } else {
-                // Just open settings
                 setOpenSettings(true);
                 setTimeout(() => setSettingsVisible(true), 50);
             }
         }
     };
 
-    // Function to handle opening notifications and closing settings
+    // Function to handle opening notifications and closing other panels
     const handleNotificationsClick = () => {
-        // If notifications is already open, start closing animation
         if (openNotifications) {
             setNotificationsVisible(false);
             notificationsTimeoutRef.current = setTimeout(() => {
                 setNotifications(false);
             }, 150);
         } else {
-            // If settings is open, close it
             if (openSettings) {
                 setSettingsVisible(false);
                 settingsTimeoutRef.current = setTimeout(() => {
                     setOpenSettings(false);
-                    // Then open notifications
+                    setNotifications(true);
+                    setTimeout(() => setNotificationsVisible(true), 50);
+                }, 150);
+            } else if (openProfile) {
+                setProfileVisible(false);
+                profileTimeoutRef.current = setTimeout(() => {
+                    setOpenProfile(false);
                     setNotifications(true);
                     setTimeout(() => setNotificationsVisible(true), 50);
                 }, 150);
             } else {
-                // Just open notifications
                 setNotifications(true);
                 setTimeout(() => setNotificationsVisible(true), 50);
             }
+        }
+    };
+
+    // Function to handle opening profile and closing other panels
+    const handleProfileClick = () => {
+        if (openProfile) {
+            setProfileVisible(false);
+            profileTimeoutRef.current = setTimeout(() => {
+                setOpenProfile(false);
+            }, 150);
+        } else {
+            if (openSettings) {
+                setSettingsVisible(false);
+                settingsTimeoutRef.current = setTimeout(() => {
+                    setOpenSettings(false);
+                    setOpenProfile(true);
+                    setTimeout(() => setProfileVisible(true), 50);
+                }, 150);
+            } else if (openNotifications) {
+                setNotificationsVisible(false);
+                notificationsTimeoutRef.current = setTimeout(() => {
+                    setNotifications(false);
+                    setOpenProfile(true);
+                    setTimeout(() => setProfileVisible(true), 50);
+                }, 150);
+            } else {
+                setOpenProfile(true);
+                setTimeout(() => setProfileVisible(true), 50);
+            }
+        }
+    };
+
+    // Function to handle logout
+    const handleLogout = async () => {
+        try {
+            // First, logout from the backend
+            const response = await fetch('/api/admin/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Failed to logout from backend');
+            }
+
+            // Then logout from Firebase
+            await signOut(auth);
+            
+            // Clear all cookies and local storage
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Redirect to login page
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Error during logout:', error);
+            // Even if there's an error, try to redirect to login
+            window.location.href = '/login';
         }
     };
 
@@ -91,12 +163,12 @@ export default function Header() {
         return () => {
             if (settingsTimeoutRef.current) clearTimeout(settingsTimeoutRef.current);
             if (notificationsTimeoutRef.current) clearTimeout(notificationsTimeoutRef.current);
+            if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
         };
     }, []);
 
     return (
         <header className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
-
             {/* Section Title */}
             <div className="flex items-center">
                 <h1 className="text-blue-950 text-[1.375rem] font-semibold md:ml-0 ml-10">
@@ -123,17 +195,17 @@ export default function Header() {
                 </button>
 
                 {/* Profile button */}
-                <Link href="/profile">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 hover:bg-gray-200 flex items-center justify-center
+                <button
+                    onClick={handleProfileClick}
+                    className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 hover:bg-gray-200 flex items-center justify-center
                     cursor-pointer transition-colors">
-                        <img src="https://www.svgrepo.com/show/532363/user-alt-1.svg" className="w-2/3 h-2/3" alt="profile" />
-                    </div>
-                </Link>
+                    <img src="https://www.svgrepo.com/show/532363/user-alt-1.svg" className="w-2/3 h-2/3" alt="profile" />
+                </button>
             </div>
 
             {/* Settings dropdown */}
             {openSettings && (
-                <div className={`absolute top-16 right-16 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
+                <div className={`absolute top-16 right-40 mt-2 w-44 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
                 transition-opacity duration-150 ${settingsVisible ? 'opacity-100' : 'opacity-0'}`}>
                     {/* Header section */}
                     <div className="flex items-center justify-between bg-gray-200 text-black px-4 py-2">
@@ -151,7 +223,7 @@ export default function Header() {
 
             {/* Notifications dropdown */}
             {openNotifications && (
-                <div className={`absolute top-16 right-16 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
+                <div className={`absolute top-16 right-24 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
                 transition-opacity duration-150 ${notificationsVisible ? 'opacity-100' : 'opacity-0'}`}>
                     {/* Header section */}
                     <div className="flex items-center justify-between bg-gray-200 text-black px-4 py-2">
@@ -163,6 +235,25 @@ export default function Header() {
                     {/* Content section */}
                     <div className="py-10 text-center">
                         <p className="text-gray-700">Sin notificaciones.</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Profile dropdown */}
+            {openProfile && (
+                <div className={`absolute top-16 right-6 mt-2 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200 overflow-hidden
+                transition-opacity duration-150 ${profileVisible ? 'opacity-100' : 'opacity-0'}`}>
+                    {/* Content section */}
+                    <div className="py-2">
+                        <Link href="/profile" className="text-black text-sm py-2 px-4 block hover:bg-gray-100">
+                            Ver perfil
+                        </Link>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full text-left text-black text-sm py-2 px-4 block hover:bg-gray-100"
+                        >
+                            Cerrar sesión
+                        </button>
                     </div>
                 </div>
             )}
