@@ -43,7 +43,6 @@ export default function Login() {
 
       const { access_token } = await response.json();
       
-      // Redirect to dashboard
       window.location.href = '/';
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred during login');
