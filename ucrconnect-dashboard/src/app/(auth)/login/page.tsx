@@ -57,8 +57,8 @@ export default function Login() {
         <img src="/images/logos/login.svg" alt="UCRConnect" className="w-24 h-24 object-contain" />
       </div>
       <div className="text-center pt-8">
-        <h1 className="text-3xl font-bold text-[#204C6F]">UCRConnect</h1>
-        <p className="mt-2 text-blue-DEFAULT">Inicie sesión en su cuenta</p>
+        <h1 className="text-3xl font-bold text-[#204C6F]">UCR Connect</h1>
+        <p className="mt-2 text-gray-700">Inicie sesión en su cuenta</p>
       </div>
         
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -76,7 +76,7 @@ export default function Login() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9]"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9]"
           />
         </div>
           
@@ -89,7 +89,7 @@ export default function Login() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9]"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9]"
           />
         </div>
           
