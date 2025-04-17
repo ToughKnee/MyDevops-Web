@@ -22,8 +22,8 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "${{ secrets.FIREBASE_ENV_FILE }}" > ~/app/ucrconnect-dashboard/.env
-          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> ~/app/ucrconnect-dashboard/.env
+          echo "${{ secrets.FIREBASE_ENV_FILE }}" > ./ucrconnect-dashboard/.env
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> ./ucrconnect-dashboard/.env
 
       - name: Docker meta data for image
         id: meta
