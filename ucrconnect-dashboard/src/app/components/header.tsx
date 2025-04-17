@@ -129,7 +129,7 @@ export default function Header() {
     // Function to handle logout
     const handleLogout = async () => {
         try {
-            // First, logout from the backend
+            // First, try to logout from the backend
             const response = await fetch('/api/admin/auth/logout', {
                 method: 'POST',
                 headers: {
@@ -149,12 +149,12 @@ export default function Header() {
                 document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
             });
             
-            // Redirect to login page
-            window.location.href = '/login';
+            // Redirect to login page with success message
+            window.location.href = '/login?logout=success';
         } catch (error) {
             console.error('Error during logout:', error);
-            // Even if there's an error, try to redirect to login
-            window.location.href = '/login';
+            // Redirect to login page with error message
+            window.location.href = '/login?logout=error';
         }
     };
 
