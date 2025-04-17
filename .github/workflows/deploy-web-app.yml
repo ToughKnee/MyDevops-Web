@@ -20,6 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.FIREBASE_ENV_FILE }}" > ~/app/ucrconnect-dashboard/.env
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> ~/app/ucrconnect-dashboard/.env
+
       - name: Docker meta data for image
         id: meta
         uses: docker/metadata-action@v4
@@ -75,15 +80,12 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             mkdir -p ~/app
-            # Create the .env file with secrets
-            echo "${{ secrets.FIREBASE_ENV_FILE }}" > ~/app/ucrconnect-dashboard/.env
-            echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> ~/app/ucrconnect-dashboard/.env
             cd ~/app/ucrconnect-dashboard
             # Pull the built image and run it
             docker pull ${{ secrets.DOCKER_USERNAME }}/frontend-app:${{ env.COMMIT_SHA }}
             docker stop frontend-app || true
             docker rm frontend-app || true
-            docker run --env-file ucrconnect-dashboard/.env -d --name frontend-app -p 3001:3000 ${{ secrets.DOCKER_USERNAME }}/frontend-app:${{ env.COMMIT_SHA }}
+            docker run -d --name frontend-app -p 3001:3000 ${{ secrets.DOCKER_USERNAME }}/frontend-app:${{ env.COMMIT_SHA }}
             # Check the container is up and running, if not then fail workflow
             if ! docker ps --filter "name=frontend-app" --filter "status=running" --format '{{.Names}}' | grep -w frontend-app ; then
               echo "Container is not running, exiting..."

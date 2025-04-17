@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Now copy the rest of the codebase and build the app
+# Now copy the rest of the codebase and build the app(we include the .env file in this first stage, which ensures the 'npm run build' command runs succesfully AND 'consume' those credentials)
 COPY . .
 RUN npm run build
 
