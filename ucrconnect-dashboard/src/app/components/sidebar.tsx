@@ -122,7 +122,7 @@ export default function Sidebar() {
             <div className="flex-1 py-4">
                 <div className="flex justify-between items-center p-4 border-b border-gray-200">
                     <Link href="/dashboard" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                        UCRConnect
+                        UCR Connect
                     </Link>
                 </div>
                 <ul className="space-y-1">
@@ -197,11 +197,6 @@ export default function Sidebar() {
                 <div className="md:hidden fixed inset-0 z-20 flex">
                     {/* Menu */}
                     <div className="w-4/5 bg-white h-full shadow-lg z-30">
-                        <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                            <Link href="/" className="text-blue-950 text-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                                UCR Connect
-                            </Link>
-                        </div>
                         {mobileSidebarContent}
                     </div>
 
