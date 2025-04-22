@@ -6,6 +6,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Request body:', body);
     
+    // Validate required fields
+    if (!body.auth_id || !body.auth_token) {
+      return NextResponse.json(
+        { 
+          message: 'Invalid request',
+          details: 'Missing required fields: auth_id and auth_token'
+        },
+        { status: 400 }
+      );
+    }
+    
     const client = await getDbClient();
     
     try {
@@ -15,7 +26,7 @@ export async function POST(request: Request) {
         [body.auth_id]
       );
 
-      if (result.rows.length === 0) {
+      if (!result || !result.rows || result.rows.length === 0) {
         return NextResponse.json(
           { 
             message: 'User not found',
