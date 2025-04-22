@@ -1,60 +1,34 @@
 import { NextResponse } from 'next/server';
+import { getDbClient } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     console.log('Request body:', body);
     
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.error('NEXT_PUBLIC_API_URL is not set');
-      return NextResponse.json(
-        { message: 'Backend URL not configured' },
-        { status: 500 }
-      );
-    }
-
-    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/admin/auth/login`;
-    console.log('Making request to:', backendUrl);
+    const client = await getDbClient();
     
     try {
-      const response = await fetch(backendUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      // Verify user exists in database (should be created by backend)
+      const result = await client.query(
+        'SELECT id FROM users WHERE auth_id = $1',
+        [body.auth_id]
+      );
 
-      if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          errorData = { message: 'Failed to parse error response' };
-        }
-        
-        console.error('Backend error response:', {
-          status: response.status,
-          statusText: response.statusText,
-          data: errorData
-        });
-
+      if (result.rows.length === 0) {
         return NextResponse.json(
           { 
-            message: errorData.message || 'Authentication failed', 
-            details: errorData.details,
-            status: response.status
+            message: 'User not found',
+            details: 'User must be created in the database first'
           },
-          { status: response.status }
+          { status: 404 }
         );
       }
 
-      const { access_token } = await response.json();
-      
       const successResponse = NextResponse.json({ message: 'Login successful' });
       
-      // Set the access token as an HTTP-only cookie
-      successResponse.cookies.set('access_token', access_token, {
+      // Set the Firebase token as an HTTP-only cookie
+      successResponse.cookies.set('access_token', body.auth_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -63,15 +37,15 @@ export async function POST(request: Request) {
       });
 
       return successResponse;
-    } catch (fetchError) {
-      console.error('Failed to connect to backend:', fetchError);
+    } catch (dbError) {
+      console.error('Database error:', dbError);
       return NextResponse.json(
         { 
-          message: 'Failed to connect to backend server',
-          details: 'Please check if the backend server is running and accessible',
-          error: fetchError instanceof Error ? fetchError.message : 'Unknown connection error'
+          message: 'Database error',
+          details: 'Failed to process authentication',
+          error: dbError instanceof Error ? dbError.message : 'Unknown database error'
         },
-        { status: 503 }
+        { status: 500 }
       );
     }
   } catch (error) {
