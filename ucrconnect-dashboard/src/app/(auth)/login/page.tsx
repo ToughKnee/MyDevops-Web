@@ -22,7 +22,7 @@ export default function Login() {
       
       const idToken = await user.getIdToken();
       
-      // Exchange Firebase token for backend token
+      // Exchange Firebase token for backend token (TODO: Implement this)
       const response = await fetch('/api/admin/auth/login', {
         method: 'POST',
         headers: {
