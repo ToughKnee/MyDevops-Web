@@ -12,7 +12,7 @@ export default function RecoverPassword() {
     e.preventDefault();
 
     // Validar el correo
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@ucr\.ac\.cr$/;
     if (!emailRegex.test(email)) {
       setError('Por favor, ingresa un correo válido.');
       return;
