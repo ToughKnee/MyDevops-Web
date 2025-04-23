@@ -49,4 +49,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: Practica-Supervisada-UCR-2025/Web
-          fail_ci_if_error: false
+          fail_ci_if_error: true
