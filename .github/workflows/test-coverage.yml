@@ -26,6 +26,8 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
       - name: Install dependencies
         run: npm install
@@ -49,5 +51,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: Practica-Supervisada-UCR-2025/Web
-
+          fail_ci_if_error: false
 
