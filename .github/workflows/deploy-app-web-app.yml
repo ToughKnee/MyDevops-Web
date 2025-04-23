@@ -17,8 +17,8 @@ jobs:
     uses: Practica-Supervisada-UCR-2025/Repo-DevOps/.github/workflows/deploy-app-reusable-workflow.yml@feature/deployment-reusable-workflow
     with:
       app_path: "./ucrconnect-dashboard"
-      image_name: "backend-user-app"
-      container_name: "backend-user-app"
+      image_name: "frontend-app"
+      container_name: "frontend-app"
       production_server_port: "3001"
       program_assigned_port: "3000"
 
