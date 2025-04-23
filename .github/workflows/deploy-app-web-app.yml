@@ -14,7 +14,7 @@ on:
 
 jobs:
   deploy-web-app:
-    uses: Practica-Supervisada-UCR-2025/Repo-DevOps/.github/workflows/deploy-app-reusable-workflow.yml@feature/deployment-reusable-workflow
+    uses: Practica-Supervisada-UCR-2025/Repo-DevOps/.github/workflows/deploy-app-reusable-workflow.yml@main
     with:
       app_path: "./ucrconnect-dashboard"
       image_name: "frontend-app"
