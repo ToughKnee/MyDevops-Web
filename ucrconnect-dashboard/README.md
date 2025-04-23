@@ -1,3 +1,5 @@
+## Web
+
 [![codecov](https://codecov.io/gh/Practica-Supervisada-UCR-2025/Web/graph/badge.svg?token=6RIKS0LKPD)](https://codecov.io/gh/Practica-Supervisada-UCR-2025/Web)
 
 ## Getting Started
