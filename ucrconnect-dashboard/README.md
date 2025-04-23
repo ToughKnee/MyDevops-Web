@@ -1,7 +1,3 @@
-## Web
-
-[![codecov](https://codecov.io/gh/ToughKnee/MyDevops-Web/graph/badge.svg?token=0DV5RR6KNQ)](https://codecov.io/gh/ToughKnee/MyDevops-Web)
-
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
