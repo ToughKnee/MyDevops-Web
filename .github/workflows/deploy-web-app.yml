@@ -16,7 +16,7 @@ jobs:
   deploy-web-app:
     uses: Practica-Supervisada-UCR-2025/Repo-DevOps/.github/workflows/deploy-app-reusable-workflow.yml@feature/deployment-reusable-workflow
     with:
-      app_path: '.'
+      app_path: "./ucrconnect-dashboard"
       image_name: "backend-user-app"
       container_name: "backend-user-app"
       production_server_port: "3001"
@@ -28,9 +28,5 @@ jobs:
       DEPLOYMENT_SERVER_HOST: ${{ secrets.DEPLOYMENT_SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-      FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_PORT: ${{ secrets.DB_PORT }}      
+      FIREBASE_ENV_FILE: ${{ secrets.FIREBASE_ENV_FILE }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
