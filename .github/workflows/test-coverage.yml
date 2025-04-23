@@ -41,7 +41,9 @@ jobs:
         working-directory: ./ucrconnect-dashboard
 
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: |
+          npm run test:coverage
+          echo "Test script exited with code $?"
         working-directory: ./ucrconnect-dashboard
 
       - name: Upload coverage to Codecov
@@ -50,3 +52,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: Practica-Supervisada-UCR-2025/Web
           fail_ci_if_error: false
+
