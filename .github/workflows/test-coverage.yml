@@ -1,0 +1,52 @@
+name: Run tests and upload coverage - Web
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test-web:
+    name: Run Web tests and collect coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./ucrconnect-dashboard
+
+      - name: Debug environment
+        run: |
+          echo "Node version: $(node -v)"
+          echo "npm version: $(npm -v)"
+          npm list --depth=0
+        working-directory: ./ucrconnect-dashboard
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        working-directory: ./ucrconnect-dashboard
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Practica-Supervisada-UCR-2025/Web
+          fail_ci_if_error: true
