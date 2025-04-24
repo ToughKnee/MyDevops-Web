@@ -99,7 +99,7 @@ export default function Header() {
 
             {/* Section Title */}
             <div className="flex items-center">
-                <h1 className="text-blue-950 text-2xl font-semibold">
+                <h1 className="text-blue-950 text-[1.375rem] font-semibold md:ml-0 ml-10">
                     {getSectionTitle()}
                 </h1>
             </div>
