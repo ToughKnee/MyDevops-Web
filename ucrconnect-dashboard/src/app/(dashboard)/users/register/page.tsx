@@ -57,6 +57,9 @@ export default function RegisterUser() {
             minLength: 8,
             maxLength: 50,
         },
+        confirmPassword: {
+            required: true
+        }
     };
 
     // Check specific form entry
@@ -64,7 +67,7 @@ export default function RegisterUser() {
         const config = validationConfig[name as keyof typeof validationConfig];
 
         if (!value && config?.required) {
-            return `El campo ${name === 'confirmPassword' ? 'confirmar contraseña' : name} es obligatorio`;
+            return `Es necesario especificar este campo.`;
         }
 
         if (name === 'name') {
@@ -161,7 +164,7 @@ export default function RegisterUser() {
 
                 // Simulating an API call with a timeout
                 const res = await new Promise<{ available: boolean }>((resolve) => {
-                    const yaRegistrados = ['admin@ejemplo.com', 'usuario@correo.com'];
+                    const yaRegistrados = ['admin@ucr.ac.cr', 'user@ucr.ac.cr'];
                     setTimeout(() => {
                         resolve({ available: !yaRegistrados.includes(formData.email.toLowerCase()) });
                     }, 500);
