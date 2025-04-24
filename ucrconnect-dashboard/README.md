@@ -2,8 +2,6 @@
 
 [![codecov](https://codecov.io/gh/Practica-Supervisada-UCR-2025/Web/graph/badge.svg?token=6RIKS0LKPD)](https://codecov.io/gh/Practica-Supervisada-UCR-2025/Web)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
 First, run the development server:
