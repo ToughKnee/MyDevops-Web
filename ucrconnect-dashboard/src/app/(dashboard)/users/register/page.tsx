@@ -9,6 +9,7 @@ type FormErrors = {
     email?: string;
     password?: string;
     confirmPassword?: string;
+    form?: string;
 };
 
 // Validation status Types
@@ -44,6 +45,7 @@ export default function RegisterUser() {
             required: true,
             minLength: 3,
             maxLength: 25,
+            pattern: /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/  // Only letters and spaces
         },
         email: {
             required: true,
@@ -58,7 +60,7 @@ export default function RegisterUser() {
     };
 
     // Check specific form entry
-    const validateField = (name: string, value: string): string => {
+    const validateField = (name: string, value: string, allFormData = formData): string => {
         const config = validationConfig[name as keyof typeof validationConfig];
 
         if (!value && config?.required) {
@@ -66,6 +68,9 @@ export default function RegisterUser() {
         }
 
         if (name === 'name') {
+            if (!config.pattern.test(value)) {
+                return 'El nombre solo debe contener letras o espacios.';
+            }
             if (value.length < config.minLength) {
                 return `El nombre debe tener al menos ${config.minLength} caracteres`;
             }
@@ -92,12 +97,31 @@ export default function RegisterUser() {
             }
         }
 
-        if (name === 'confirmPassword' && value !== formData.password) {
+        if (name === 'confirmPassword' && value !== allFormData.password) {
             return 'Las contraseñas no coinciden';
         }
 
         return '';
     };
+
+    // Effect to validate confirmPassword when password changes and vice versa
+    useEffect(() => {
+        if (touched.confirmPassword && formData.confirmPassword) {
+            const error = validateField('confirmPassword', formData.confirmPassword);
+            setErrors(prev => ({
+                ...prev,
+                confirmPassword: error,
+            }));
+        }
+
+        if (touched.password && touched.confirmPassword && formData.confirmPassword) {
+            const error = validateField('confirmPassword', formData.confirmPassword);
+            setErrors(prev => ({
+                ...prev,
+                confirmPassword: error,
+            }));
+        }
+    }, [formData.password, formData.confirmPassword, touched.confirmPassword, touched.password]);
 
     // Validate all entries in form
     const validateForm = (): FormErrors => {
@@ -105,7 +129,7 @@ export default function RegisterUser() {
 
         Object.keys(formData).forEach((key) => {
             const fieldName = key as keyof typeof formData;
-            const error = validateField(fieldName, formData[fieldName]);
+            const error = validateField(fieldName, formData[fieldName], formData);
             if (error) {
                 newErrors[fieldName] = error;
             }
@@ -130,10 +154,10 @@ export default function RegisterUser() {
 
         const timeoutId = setTimeout(async () => {
             try {
-            // Uncomment and adapt the following lines to use the actual API endpoint
-              //const res = await fetch(`/api/users/check-email?email=${formData.email}`);
-              //const data = await res.json();
-              //setEmailAvailable(data.available);
+                // Uncomment and adapt the following lines to use the actual API endpoint
+                //const res = await fetch(`/api/users/check-email?email=${formData.email}`);
+                //const data = await res.json();
+                //setEmailAvailable(data.available);
 
                 // Simulating an API call with a timeout
                 const res = await new Promise<{ available: boolean }>((resolve) => {
@@ -144,13 +168,13 @@ export default function RegisterUser() {
                 });
 
                 setEmailAvailable(res.available);
-        //---------------------------------------
+                //---------------------------------------
 
             } catch (error) {
                 console.error("Error al verificar el correo", error);
                 setEmailAvailable(null);
             }
-    }, 500); // wait 500ms after the last keystroke
+        }, 500); // wait 500ms after the last keystroke
 
         return () => clearTimeout(timeoutId);
     }, [formData.email]);
@@ -159,14 +183,17 @@ export default function RegisterUser() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        setFormData((prev) => ({
-            ...prev,
+        // Create updated form data for validation
+        const updatedFormData = {
+            ...formData,
             [name]: value,
-        }));
+        };
 
-        // Validate when detecting change
+        setFormData(updatedFormData);
+
+        // Validate when detecting change with the updated form data
         if (touched[name as keyof ValidationState]) {
-            const error = validateField(name, value);
+            const error = validateField(name, value, updatedFormData);
             setErrors(prev => ({
                 ...prev,
                 [name]: error,
@@ -183,7 +210,7 @@ export default function RegisterUser() {
             [name]: true,
         }));
 
-        const error = validateField(name, formData[name as keyof typeof formData]);
+        const error = validateField(name, formData[name as keyof typeof formData], formData);
         setErrors(prev => ({
             ...prev,
             [name]: error,
