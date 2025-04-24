@@ -116,8 +116,8 @@ export default function Login() {
             </form>
 
             <div className="text-center mt-4">
-                <Link href="/" className="text-sm text-blue-600 hover:text-blue-800">
-                    Ir al dashboard
+                <Link href="recover_password" className="text-sm text-blue-600 hover:text-blue-800">
+                    ¿Olvidaste tu contraseña?
                 </Link>
             </div>
         </div>
