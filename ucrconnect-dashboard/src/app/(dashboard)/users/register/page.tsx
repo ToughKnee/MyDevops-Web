@@ -71,31 +71,31 @@ export default function RegisterUser() {
         }
 
         if (name === 'name') {
-            if (!config.pattern.test(value)) {
+            if ('pattern' in config && !config.pattern.test(value)) {
                 return 'El nombre solo debe contener letras o espacios.';
             }
-            if (value.length < config.minLength) {
+            if ('minLength' in config && value.length < config.minLength) {
                 return `El nombre debe tener al menos ${config.minLength} caracteres`;
             }
-            if (value.length > config.maxLength) {
+            if ('maxLength' in config && value.length > config.maxLength) {
                 return `El nombre no puede tener más de ${config.maxLength} caracteres`;
             }
         }
 
         if (name === 'email') {
-            if (value && !config.pattern.test(value)) {
+            if ('pattern' in config && value && !config.pattern.test(value)) {
                 return 'Formato de correo electrónico inválido';
             }
-            if (value.length > config.maxLength) {
+            if ('maxLength' in config && value.length > config.maxLength) {
                 return `El correo no puede tener más de ${config.maxLength} caracteres`;
             }
         }
 
         if (name === 'password') {
-            if (value.length < config.minLength) {
+            if ('minLength' in config && value.length < config.minLength) {
                 return `La contraseña debe tener al menos ${config.minLength} caracteres`;
             }
-            if (value.length > config.maxLength) {
+            if ('maxLength' in config && value.length > config.maxLength) {
                 return `La contraseña no puede tener más de ${config.maxLength} caracteres`;
             }
         }
