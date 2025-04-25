@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 
-// Hook personalizado para cargar datos
+// Custom hook for loading data
 function useFetchData<T>(endpoint: string, key: string): { data: T[]; loading: boolean; error: string | null } {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +41,7 @@ export function PostsChart({
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
+  if (data.length === 0) return <p>No data available</p>;
 
   return (
     <ResponsiveContainer width="100%" height="110%">
@@ -71,6 +72,7 @@ export function ReportsChart({
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
+  if (data.length === 0) return <p>No data available</p>;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -109,6 +111,7 @@ export function UsersChart({
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
+  if (data.length === 0) return <p>No data available</p>;
 
   return (
     <ResponsiveContainer width="100%" height="100%">

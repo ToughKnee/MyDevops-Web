@@ -1,4 +1,3 @@
-// statCard.tsx
 import { FC } from 'react';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 
