@@ -67,7 +67,14 @@ export default function RegisterUser() {
         const config = validationConfig[name as keyof typeof validationConfig];
 
         if (!value && config?.required) {
-            return `Es necesario especificar este campo.`;
+            const requiredMessages: Record<string, string> = {
+                name: 'El nombre es obligatorio.',
+                email: 'El correo es obligatorio.',
+                password: 'La contraseña es obligatoria.',
+                confirmPassword: 'Debes confirmar tu contraseña.',
+            };
+        
+            return requiredMessages[name] || 'Este campo es obligatorio.';
         }
 
         if (name === 'name') {
