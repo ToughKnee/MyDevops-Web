@@ -16,25 +16,25 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      const idToken = await user.getIdToken();
-      
-      const response = await fetch('/api/admin/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          email: user.email,
-          full_name: user.displayName || '',
-          auth_id: user.uid,
-          auth_token: idToken,
-        }),
-      });
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    const idToken = await user.getIdToken();
+    
+    const response = await fetch('/api/admin/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify({
+        email: user.email,
+        full_name: user.displayName || '',
+        auth_id: user.uid,
+        auth_token: idToken,
+      }),
+    });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -42,10 +42,21 @@ export default function Login() {
       }
 
       const { access_token } = await response.json();
-      
+
       window.location.href = '/';
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred during login');
+      } catch (error) {
+        // Handle Firebase auth errors with custom messages
+        if (error instanceof Error) {
+          if (error.message.includes('auth/invalid-credential') ||
+            error.message.includes('auth/user-not-found') ||
+            error.message.includes('auth/wrong-password')) {
+            setError('Nombre de usuario o contraseña incorrectos.');
+          } else {
+            setError('Ha ocurrido un error durante el inicio de sesión.');
+          }
+        } else {
+          setError('Ha ocurrido un error durante el inicio de sesión.');
+        }
     } finally {
       setLoading(false);
     }
@@ -60,7 +71,7 @@ export default function Login() {
         <h1 className="text-3xl font-bold text-[#204C6F]">UCR Connect</h1>
         <p className="mt-2 text-gray-700">Inicie sesión en su cuenta</p>
       </div>
-        
+
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         {error && (
           <div className="text-red-500 text-sm text-center">
@@ -79,7 +90,7 @@ export default function Login() {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9] dark:text-[#0C344E]"
           />
         </div>
-          
+
         <div>
           <input
             id="password"
@@ -92,10 +103,10 @@ export default function Login() {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9] dark:text-[#0C344E]"
           />
         </div>
-          
+
         <div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-[#204C6F] to-[#2980B9] hover:from-[#1a3d58] hover:to-[#226a96] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -103,7 +114,7 @@ export default function Login() {
           </button>
         </div>
       </form>
-        
+
       <div className="text-center mt-4">
         <Link href="/" className="text-sm text-blue-600 hover:text-blue-800">
           Ir al dashboard
@@ -111,4 +122,4 @@ export default function Login() {
       </div>
     </div>
   );
-} 
+}

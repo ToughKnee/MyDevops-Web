@@ -109,7 +109,7 @@ describe('Login Page', () => {
 
     // Wait for error message
     await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
     });
   });
 
@@ -147,7 +147,7 @@ describe('Login Page', () => {
 
     // Wait for error message
     await waitFor(() => {
-      expect(screen.getByText('Invalid request')).toBeInTheDocument();
+      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
     });
   });
 }); 
