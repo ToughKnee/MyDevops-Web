@@ -292,7 +292,6 @@ export default function RegisterUser() {
                             value={formData.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.name.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.name && touched.name && (
@@ -312,7 +311,6 @@ export default function RegisterUser() {
                             value={formData.email}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.email.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.email || emailAvailable === false ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.email && touched.email && (
@@ -341,7 +339,6 @@ export default function RegisterUser() {
                             value={formData.password}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.password.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.password && touched.password && (
@@ -361,7 +358,6 @@ export default function RegisterUser() {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.password.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.confirmPassword && touched.confirmPassword && (
