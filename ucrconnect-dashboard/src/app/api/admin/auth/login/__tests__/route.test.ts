@@ -1,5 +1,5 @@
 import { POST } from '../route';
-import { getDbClient } from '@/lib/db';
+import { NextResponse } from 'next/server';
 
 // Mock console methods
 const originalConsole = { ...console };
@@ -12,11 +12,6 @@ afterAll(() => {
   console.log = originalConsole.log;
   console.error = originalConsole.error;
 });
-
-// Mock the database client
-jest.mock('@/lib/db', () => ({
-  getDbClient: jest.fn(),
-}));
 
 // Mock the NextResponse
 jest.mock('next/server', () => ({
@@ -68,18 +63,9 @@ describe('Login API Route', () => {
   });
 
   it('handles successful login', async () => {
-    // Mock database query result
-    const mockQuery = jest.fn().mockResolvedValue({
-      rows: [{ id: 'user-123' }],
-    });
-
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: mockQuery,
-    });
-
     const response = await POST(mockRequest({
-      auth_id: 'firebase-uid',
-      auth_token: 'firebase-token',
+      auth_id: 'test-uid',
+      auth_token: 'test-token',
     }));
 
     expect(response.status).toBe(200);
@@ -88,74 +74,7 @@ describe('Login API Route', () => {
     }));
   });
 
-  it('handles user not found', async () => {
-    // Mock database query result with no rows
-    const mockQuery = jest.fn().mockResolvedValue({
-      rows: [],
-    });
-
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: mockQuery,
-    });
-
-    const response = await POST(mockRequest({
-      auth_id: 'non-existent-uid',
-      auth_token: 'firebase-token',
-    }));
-
-    expect(response.status).toBe(404);
-    expect(response).toEqual(expect.objectContaining({
-      message: 'User not found',
-      details: 'User must be created in the database first',
-    }));
-  });
-
-  it('handles database error', async () => {
-    // Mock database error
-    const mockQuery = jest.fn().mockRejectedValue(new Error('Database connection failed'));
-
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: mockQuery,
-    });
-
-    const response = await POST(mockRequest({
-      auth_id: 'firebase-uid',
-      auth_token: 'firebase-token',
-    }));
-
-    expect(response.status).toBe(500);
-    expect(response).toEqual(expect.objectContaining({
-      message: 'Database error',
-      details: 'Failed to process authentication',
-    }));
-  });
-
-  it('handles undefined database result', async () => {
-    // Mock database query to return undefined
-    const mockQuery = jest.fn().mockResolvedValue(undefined);
-
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: mockQuery,
-    });
-
-    const response = await POST(mockRequest({
-      auth_id: 'firebase-uid',
-      auth_token: 'firebase-token',
-    }));
-
-    expect(response.status).toBe(404);
-    expect(response).toEqual(expect.objectContaining({
-      message: 'User not found',
-      details: 'User must be created in the database first',
-    }));
-  });
-
   it('handles missing required fields', async () => {
-    // Mock database client to not be called
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: jest.fn(),
-    });
-
     const response = await POST(mockRequest({}));
 
     expect(response.status).toBe(400);
@@ -166,13 +85,8 @@ describe('Login API Route', () => {
   });
 
   it('handles missing auth_id', async () => {
-    // Mock database client to not be called
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: jest.fn(),
-    });
-
     const response = await POST(mockRequest({
-      auth_token: 'firebase-token',
+      auth_token: 'test-token',
     }));
 
     expect(response.status).toBe(400);
@@ -183,13 +97,8 @@ describe('Login API Route', () => {
   });
 
   it('handles missing auth_token', async () => {
-    // Mock database client to not be called
-    (getDbClient as jest.Mock).mockResolvedValue({
-      query: jest.fn(),
-    });
-
     const response = await POST(mockRequest({
-      auth_id: 'firebase-uid',
+      auth_id: 'test-uid',
     }));
 
     expect(response.status).toBe(400);

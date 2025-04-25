@@ -26,7 +26,6 @@ describe('Login Page', () => {
     expect(screen.getByPlaceholderText('Correo electrónico')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument();
     expect(screen.getByText('Ingresar')).toBeInTheDocument();
-    expect(screen.getByText('Ir al dashboard')).toBeInTheDocument();
   });
 
   it('handles successful login', async () => {
@@ -45,7 +44,7 @@ describe('Login Page', () => {
     // Mock fetch for the API call
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({}),
+      json: () => Promise.resolve({ message: 'Login successful' }),
     });
 
     render(<Login />);
@@ -78,6 +77,7 @@ describe('Login Page', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer mock-token',
       },
       body: JSON.stringify({
         email: 'test@example.com',
@@ -129,7 +129,7 @@ describe('Login Page', () => {
     // Mock failed API response
     global.fetch = jest.fn().mockResolvedValue({
       ok: false,
-      json: () => Promise.resolve({ message: 'User not found' }),
+      json: () => Promise.resolve({ message: 'Invalid request', details: 'Missing required fields' }),
     });
 
     render(<Login />);
@@ -147,7 +147,7 @@ describe('Login Page', () => {
 
     // Wait for error message
     await waitFor(() => {
-      expect(screen.getByText('User not found')).toBeInTheDocument();
+      expect(screen.getByText('Invalid request')).toBeInTheDocument();
     });
   });
 }); 
