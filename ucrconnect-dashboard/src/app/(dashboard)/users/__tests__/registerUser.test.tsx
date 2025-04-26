@@ -194,7 +194,9 @@ describe('RegisterUser Component', () => {
             expect(screen.getByText(/Usuario registrado correctamente./i)).toBeInTheDocument();
         });
 
-        jest.runOnlyPendingTimers();
+        await act(async () => {
+            jest.runOnlyPendingTimers();
+        });
         jest.useRealTimers();
     });
 
