@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Usuarios",
+    "value": 924,
+    "change": 9,
+    "route": "/users"
+  },
+  {
+    "title": "Reportes",
+    "value": 14,
+    "change": -34,
+    "route": "/content"
+  },
+  {
+    "title": "Posts",
+    "value": 2678,
+    "change": 43,
+    "route": "/content"
+  }
+]
