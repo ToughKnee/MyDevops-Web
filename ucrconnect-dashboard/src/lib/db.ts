@@ -6,34 +6,33 @@ import path from 'path';
 let client: Client | null = null;
 
 export async function getDbClient() {
+    const caCertPath = process.env.DB_SSL_CA_PATH || path.join(process.cwd(), "certs", "digitalOcean-ca-certificate.crt");
+
     if (!client) {
         client = new Client({
-            host: process.env.DB_HOST || "ucrconnect-postgresql-do-user-20845382-0.m.db.ondigitalocean.com",
-            user: process.env.DB_USER || "backendUser",
-            password: process.env.DB_PASSWORD || "",
-            database: process.env.DB_NAME || "backendDB",
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
             port: parseInt(process.env.DB_PORT || "25060"),
             ssl: {
-                ca: fs.readFileSync(path.join(process.cwd(), "certs", "digitalOcean-ca-certificate.crt")).toString()
+                ca: fs.readFileSync(caCertPath).toString()
             }
         });
 
         try {
             await client.connect();
-            console.log('Successfully connected to PostgreSQL database');
         } catch (error) {
-            console.error('Error connecting to PostgreSQL database:', error);
-            throw error;
+            console.error('Database connection error');
+            throw new Error('Database connection failed');
         }
     }
     return client;
 }
 
-// Function to close the database connection
 export async function closeDbConnection() {
     if (client) {
         await client.end();
         client = null;
-        console.log('Database connection closed');
     }
 } 
