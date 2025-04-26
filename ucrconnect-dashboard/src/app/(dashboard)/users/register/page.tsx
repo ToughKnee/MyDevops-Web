@@ -67,41 +67,48 @@ export default function RegisterUser() {
         const config = validationConfig[name as keyof typeof validationConfig];
 
         if (!value && config?.required) {
-            return `Es necesario especificar este campo.`;
+            const requiredMessages: Record<string, string> = {
+                name: 'El nombre es obligatorio.',
+                email: 'El correo es obligatorio.',
+                password: 'La contraseña es obligatoria.',
+                confirmPassword: 'Debes confirmar tu contraseña.',
+            };
+        
+            return requiredMessages[name] || 'Este campo es obligatorio.';
         }
 
         if (name === 'name') {
-            if (!config.pattern.test(value)) {
+            if ('pattern' in config && !config.pattern.test(value)) {
                 return 'El nombre solo debe contener letras o espacios.';
             }
-            if (value.length < config.minLength) {
-                return `El nombre debe tener al menos ${config.minLength} caracteres`;
+            if ('minLength' in config && value.length < config.minLength) {
+                return `El nombre debe tener al menos ${config.minLength} caracteres.`;
             }
-            if (value.length > config.maxLength) {
-                return `El nombre no puede tener más de ${config.maxLength} caracteres`;
+            if ('maxLength' in config && value.length > config.maxLength) {
+                return `El nombre no puede tener más de ${config.maxLength} caracteres.`;
             }
         }
 
         if (name === 'email') {
-            if (value && !config.pattern.test(value)) {
-                return 'Formato de correo electrónico inválido';
+            if ('pattern' in config && value && !config.pattern.test(value)) {
+                return 'Formato de correo electrónico inválido.';
             }
-            if (value.length > config.maxLength) {
-                return `El correo no puede tener más de ${config.maxLength} caracteres`;
+            if ('maxLength' in config && value.length > config.maxLength) {
+                return `El correo no puede tener más de ${config.maxLength} caracteres.`;
             }
         }
 
         if (name === 'password') {
-            if (value.length < config.minLength) {
-                return `La contraseña debe tener al menos ${config.minLength} caracteres`;
+            if ('minLength' in config && value.length < config.minLength) {
+                return `La contraseña debe tener al menos ${config.minLength} caracteres.`;
             }
-            if (value.length > config.maxLength) {
-                return `La contraseña no puede tener más de ${config.maxLength} caracteres`;
+            if ('maxLength' in config && value.length > config.maxLength) {
+                return `La contraseña no puede tener más de ${config.maxLength} caracteres.`;
             }
         }
 
         if (name === 'confirmPassword' && value !== allFormData.password) {
-            return 'Las contraseñas no coinciden';
+            return 'Las contraseñas no coinciden.';
         }
 
         return '';
@@ -174,7 +181,7 @@ export default function RegisterUser() {
                 //---------------------------------------
 
             } catch (error) {
-                console.error("Error al verificar el correo", error);
+                console.error("Error al verificar el correo.", error);
                 setEmailAvailable(null);
             }
         }, 500); // wait 500ms after the last keystroke
@@ -258,7 +265,7 @@ export default function RegisterUser() {
                 setSuccessMessage("");
             }, 3000);
         } catch (err) {
-            console.error('Error al registrar usuario:', err);
+            console.error('Error al registrar usuario.', err);
             setErrors(prev => ({
                 ...prev,
                 form: "Ocurrió un error al registrar el usuario.",
@@ -285,7 +292,6 @@ export default function RegisterUser() {
                             value={formData.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.name.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.name && touched.name && (
@@ -305,7 +311,6 @@ export default function RegisterUser() {
                             value={formData.email}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.email.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.email || emailAvailable === false ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.email && touched.email && (
@@ -314,9 +319,9 @@ export default function RegisterUser() {
                         {formData.email && !errors.email && touched.email && (
                             <p className={`text-sm mt-1 ${emailAvailable === true ? 'text-green-500' : emailAvailable === false ? 'text-red-500' : 'text-gray-500'}`}>
                                 {emailAvailable === true
-                                    ? 'Correo disponible'
+                                    ? 'Correo disponible.'
                                     : emailAvailable === false
-                                        ? 'Este correo ya está registrado'
+                                        ? 'Este correo ya está registrado.'
                                         : 'Verificando disponibilidad...'}
                             </p>
                         )}
@@ -334,7 +339,6 @@ export default function RegisterUser() {
                             value={formData.password}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.password.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.password && touched.password && (
@@ -354,7 +358,6 @@ export default function RegisterUser() {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            maxLength={validationConfig.password.maxLength}
                             className={`mt-1 w-full block px-3 py-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                         />
                         {errors.confirmPassword && touched.confirmPassword && (
@@ -367,7 +370,7 @@ export default function RegisterUser() {
                             type="submit"
                             className="mt-2 w-auto py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={!isFormValid() || isSubmitting}
-                            title={!isFormValid() ? 'Complete todos los campos correctamente' : ''}
+                            title={!isFormValid() ? 'Complete todos los campos correctamente.' : ''}
                         >
                             {isSubmitting ? 'Registrando...' : 'Registrar usuario'}
                         </button>
@@ -382,7 +385,7 @@ export default function RegisterUser() {
                     )}
 
                     <div className="text-xs text-gray-500 mt-2">
-                        <p>* Campos obligatorios</p>
+                        <p>* Campos obligatorios.</p>
                     </div>
                 </form>
             </div>
