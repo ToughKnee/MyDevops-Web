@@ -1,0 +1,28 @@
+{
+  "dataPosts": [
+    { "category": "Noticias", "posts": 120 },
+    { "category": "Memes", "posts": 180 },
+    { "category": "Tecnología", "posts": 150 },
+    { "category": "Opinión", "posts": 90 },
+    { "category": "Entretenimiento", "posts": 130 }
+  ],
+  "dataReports": [
+    { "name": "Spam", "value": 35 },
+    { "name": "Ofensivo", "value": 20 },
+    { "name": "Otro", "value": 45 }
+  ],
+  "dataUsers": [
+    { "month": "Ene", "users": 100 },
+    { "month": "Feb", "users": 200 },
+    { "month": "Mar", "users": 300 },
+    { "month": "Abr", "users": 250 },
+    { "month": "May", "users": 400 },
+    { "month": "Jun", "users": 450 },
+    { "month": "Jul", "users": 100 },
+    { "month": "Ago", "users": 200 },
+    { "month": "Sep", "users": 300 },
+    { "month": "Oct", "users": 250 },
+    { "month": "Nov", "users": 400 },
+    { "month": "Dec", "users": 450 }
+  ]
+}

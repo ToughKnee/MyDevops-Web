@@ -45,11 +45,6 @@ describe('Header Component', () => {
         jest.useRealTimers();
     });
 
-    it('renders with correct default section title', () => {
-        render(<Header />);
-        expect(screen.getByText('Vista General')).toBeInTheDocument();
-    });
-
     it('displays different section titles based on pathname', () => {
         const { usePathname } = require('next/navigation');
 

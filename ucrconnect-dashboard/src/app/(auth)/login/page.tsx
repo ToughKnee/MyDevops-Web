@@ -103,7 +103,6 @@ export default function Login() {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#2980B9] focus:border-[#2980B9] dark:text-[#0C344E]"
           />
         </div>
-
         <div>
           <button
             type="submit"
@@ -112,14 +111,14 @@ export default function Login() {
           >
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
+
         </div>
       </form>
-
-      <div className="text-center mt-4">
-        <Link href="/" className="text-sm text-blue-600 hover:text-blue-800">
-          Ir al dashboard
-        </Link>
-      </div>
+            <div className="text-center mt-4">
+                <Link href="recover_password" className="text-sm text-blue-600 hover:text-blue-800">
+                    ¿Olvidaste tu contraseña?
+                </Link>
+            </div>
     </div>
   );
 }
