@@ -82,33 +82,33 @@ export default function RegisterUser() {
                 return 'El nombre solo debe contener letras o espacios.';
             }
             if ('minLength' in config && value.length < config.minLength) {
-                return `El nombre debe tener al menos ${config.minLength} caracteres`;
+                return `El nombre debe tener al menos ${config.minLength} caracteres.`;
             }
             if ('maxLength' in config && value.length > config.maxLength) {
-                return `El nombre no puede tener más de ${config.maxLength} caracteres`;
+                return `El nombre no puede tener más de ${config.maxLength} caracteres.`;
             }
         }
 
         if (name === 'email') {
             if ('pattern' in config && value && !config.pattern.test(value)) {
-                return 'Formato de correo electrónico inválido';
+                return 'Formato de correo electrónico inválido.';
             }
             if ('maxLength' in config && value.length > config.maxLength) {
-                return `El correo no puede tener más de ${config.maxLength} caracteres`;
+                return `El correo no puede tener más de ${config.maxLength} caracteres.`;
             }
         }
 
         if (name === 'password') {
             if ('minLength' in config && value.length < config.minLength) {
-                return `La contraseña debe tener al menos ${config.minLength} caracteres`;
+                return `La contraseña debe tener al menos ${config.minLength} caracteres.`;
             }
             if ('maxLength' in config && value.length > config.maxLength) {
-                return `La contraseña no puede tener más de ${config.maxLength} caracteres`;
+                return `La contraseña no puede tener más de ${config.maxLength} caracteres.`;
             }
         }
 
         if (name === 'confirmPassword' && value !== allFormData.password) {
-            return 'Las contraseñas no coinciden';
+            return 'Las contraseñas no coinciden.';
         }
 
         return '';
@@ -181,7 +181,7 @@ export default function RegisterUser() {
                 //---------------------------------------
 
             } catch (error) {
-                console.error("Error al verificar el correo", error);
+                console.error("Error al verificar el correo.", error);
                 setEmailAvailable(null);
             }
         }, 500); // wait 500ms after the last keystroke
@@ -265,7 +265,7 @@ export default function RegisterUser() {
                 setSuccessMessage("");
             }, 3000);
         } catch (err) {
-            console.error('Error al registrar usuario:', err);
+            console.error('Error al registrar usuario.', err);
             setErrors(prev => ({
                 ...prev,
                 form: "Ocurrió un error al registrar el usuario.",
@@ -319,9 +319,9 @@ export default function RegisterUser() {
                         {formData.email && !errors.email && touched.email && (
                             <p className={`text-sm mt-1 ${emailAvailable === true ? 'text-green-500' : emailAvailable === false ? 'text-red-500' : 'text-gray-500'}`}>
                                 {emailAvailable === true
-                                    ? 'Correo disponible'
+                                    ? 'Correo disponible.'
                                     : emailAvailable === false
-                                        ? 'Este correo ya está registrado'
+                                        ? 'Este correo ya está registrado.'
                                         : 'Verificando disponibilidad...'}
                             </p>
                         )}
@@ -370,7 +370,7 @@ export default function RegisterUser() {
                             type="submit"
                             className="mt-2 w-auto py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={!isFormValid() || isSubmitting}
-                            title={!isFormValid() ? 'Complete todos los campos correctamente' : ''}
+                            title={!isFormValid() ? 'Complete todos los campos correctamente.' : ''}
                         >
                             {isSubmitting ? 'Registrando...' : 'Registrar usuario'}
                         </button>
@@ -385,7 +385,7 @@ export default function RegisterUser() {
                     )}
 
                     <div className="text-xs text-gray-500 mt-2">
-                        <p>* Campos obligatorios</p>
+                        <p>* Campos obligatorios.</p>
                     </div>
                 </form>
             </div>
