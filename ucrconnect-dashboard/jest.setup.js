@@ -22,3 +22,27 @@ jest.mock('next/navigation', () => ({
 beforeEach(() => {
     jest.clearAllMocks()
 })
+
+global.requestIdleCallback = (cb) => {
+    return setTimeout(() => {
+      cb({
+        didTimeout: false,
+        timeRemaining: () => 50,
+      });
+    }, 1);
+  };
+  
+  global.cancelIdleCallback = (id) => {
+    clearTimeout(id);
+  };
+  
+  // Mockear IntersectionObserver
+  class IntersectionObserverMock {
+    constructor() {}
+    observe() {}
+    disconnect() {}
+    unobserve() {}
+  }
+  
+  global.IntersectionObserver = IntersectionObserverMock;
+  

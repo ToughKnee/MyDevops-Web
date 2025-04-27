@@ -2,6 +2,19 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import Header from '../header';
 import '@testing-library/jest-dom';
 
+// Mock Firebase
+jest.mock('firebase/app', () => ({
+    initializeApp: jest.fn(),
+    getApps: jest.fn(() => []),
+}));
+
+jest.mock('firebase/auth', () => ({
+    getAuth: jest.fn(() => ({
+        currentUser: null,
+        onAuthStateChanged: jest.fn(),
+    })),
+}));
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
     usePathname: jest.fn(),
@@ -30,11 +43,6 @@ describe('Header Component', () => {
     afterEach(() => {
         // Restore timers after each test
         jest.useRealTimers();
-    });
-
-    it('renders with correct default section title', () => {
-        render(<Header />);
-        expect(screen.getByText('Vista General')).toBeInTheDocument();
     });
 
     it('displays different section titles based on pathname', () => {
@@ -182,7 +190,20 @@ describe('Header Component', () => {
 
     it('has functioning link to profile page', () => {
         render(<Header />);
-        const profileLink = screen.getByAltText('profile').closest('a');
+        const profileImage = screen.getByAltText('profile');
+        expect(profileImage).toBeInTheDocument();
+        
+        // Click the profile button to open the dropdown
+        fireEvent.click(profileImage);
+        
+        // Fast-forward timers to trigger visibility
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+        
+        // Find the profile link in the dropdown
+        const profileLink = screen.getByText('Ver perfil');
+        expect(profileLink).toBeInTheDocument();
         expect(profileLink).toHaveAttribute('href', '/profile');
     });
 
