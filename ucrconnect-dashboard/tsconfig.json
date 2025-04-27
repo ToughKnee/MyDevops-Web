@@ -23,7 +23,8 @@
       "@/app/*": [ "./src/app/*" ],
       "@/components/*": [ "./src/app/components/*" ],
       "@/lib/*": [ "./src/lib/*" ]
-    }
+    },
+    "types": ["jest", "node"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "jest.config.js"],
   "exclude": ["node_modules"]

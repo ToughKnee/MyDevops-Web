@@ -1,78 +1,95 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import Login from '../page';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import Login from '../page';
 
-// Mock Firebase auth
+// Mock firebase/auth
 jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
+  getAuth: jest.fn(() => ({
+    currentUser: null,
+    onAuthStateChanged: jest.fn(),
+  })),
 }));
 
-// Mock the auth object
-jest.mock('@/lib/firebase', () => ({
-  auth: {},
+// Mock firebase/app
+jest.mock('firebase/app', () => ({
+  initializeApp: jest.fn(),
+  getApps: jest.fn(() => []),
 }));
+
+// Mock fetch
+global.fetch = jest.fn();
 
 describe('Login Page', () => {
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
+    // Reset fetch mock
+    (global.fetch as jest.Mock).mockReset();
   });
 
   it('renders login form correctly', () => {
     render(<Login />);
     
-    // Check if all elements are present
+    // Check for main elements
+    expect(screen.getByText('UCR Connect')).toBeInTheDocument();
+    expect(screen.getByText('Inicie sesión en su cuenta')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Correo electrónico')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument();
     expect(screen.getByText('Ingresar')).toBeInTheDocument();
+    expect(screen.getByText('¿Olvidaste tu contraseña?')).toBeInTheDocument();
   });
 
   it('handles successful login', async () => {
-    // Mock successful Firebase authentication
+    // Mock successful Firebase auth
     const mockUser = {
-      uid: 'test-uid',
-      email: 'test@example.com',
-      displayName: 'Test User',
-      getIdToken: jest.fn().mockResolvedValue('mock-token'),
+      user: {
+        email: 'test@example.com',
+        displayName: 'Test User',
+        uid: '123',
+        getIdToken: jest.fn().mockResolvedValue('mock-token'),
+      },
     };
-    
-    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue({
-      user: mockUser,
+    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue(mockUser);
+
+    // Mock successful backend response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ access_token: 'mock-access-token' }),
     });
 
-    // Mock fetch for the API call
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ message: 'Login successful' }),
+    // Mock window.location
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, href: '' },
+      writable: true,
     });
 
     render(<Login />);
 
-    // Fill in the form
-    fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
-      target: { value: 'test@example.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
-      target: { value: 'password123' },
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
     });
 
-    // Submit the form
-    fireEvent.click(screen.getByText('Ingresar'));
-
-    // Wait for the loading state
+    // Verify Firebase auth call
     await waitFor(() => {
-      expect(screen.getByText('Ingresando...')).toBeInTheDocument();
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
+        auth,
+        'test@example.com',
+        'password123'
+      );
     });
 
-    // Verify Firebase auth was called
-    expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
-      auth,
-      'test@example.com',
-      'password123'
-    );
-
-    // Verify API call was made
+    // Verify backend API call
     expect(global.fetch).toHaveBeenCalledWith('/api/admin/auth/login', {
       method: 'POST',
       headers: {
@@ -82,21 +99,59 @@ describe('Login Page', () => {
       body: JSON.stringify({
         email: 'test@example.com',
         full_name: 'Test User',
-        auth_id: 'test-uid',
+        auth_id: '123',
         auth_token: 'mock-token',
       }),
     });
+
+    // Verify redirection
+    await waitFor(() => {
+      expect(window.location.href).toBe('/');
+    });
+
+    // Restore window.location
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
   });
 
-  it('handles login error', async () => {
-    // Mock Firebase authentication error
+  it('handles Firebase auth errors', async () => {
+    // Mock Firebase auth error
     (signInWithEmailAndPassword as jest.Mock).mockRejectedValue(
-      new Error('Invalid credentials')
+      new Error('auth/invalid-credential')
     );
 
     render(<Login />);
 
-    // Fill in the form
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'wrongpassword' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
+    });
+
+    // Check error message
+    await waitFor(() => {
+      expect(screen.getByText('Nombre de usuario o contraseña incorrectos.')).toBeInTheDocument();
+    });
+  });
+
+  it('handles Firebase auth errors - user not found', async () => {
+    // Mock Firebase auth error
+    (signInWithEmailAndPassword as jest.Mock).mockRejectedValue(
+      new Error('auth/user-not-found')
+    );
+
+    render(<Login />);
+
+    // Fill form
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
       target: { value: 'test@example.com' },
     });
@@ -104,48 +159,270 @@ describe('Login Page', () => {
       target: { value: 'wrongpassword' },
     });
 
-    // Submit the form
+    // Submit form
     fireEvent.click(screen.getByText('Ingresar'));
 
-    // Wait for error message
+    // Check error message
+    await waitFor(() => {
+      expect(screen.getByText('Nombre de usuario o contraseña incorrectos.')).toBeInTheDocument();
+    });
+  });
+
+  it('handles Firebase auth errors - wrong password', async () => {
+    // Mock Firebase auth error
+    (signInWithEmailAndPassword as jest.Mock).mockRejectedValue(
+      new Error('auth/wrong-password')
+    );
+
+    render(<Login />);
+
+    // Fill form
+    fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+      target: { value: 'wrongpassword' },
+    });
+
+    // Submit form
+    fireEvent.click(screen.getByText('Ingresar'));
+
+    // Check error message
+    await waitFor(() => {
+      expect(screen.getByText('Nombre de usuario o contraseña incorrectos.')).toBeInTheDocument();
+    });
+  });
+
+  it('handles backend API errors', async () => {
+    // Mock successful Firebase auth
+    const mockUser = {
+      user: {
+        email: 'test@example.com',
+        displayName: 'Test User',
+        uid: '123',
+        getIdToken: jest.fn().mockResolvedValue('mock-token'),
+      },
+    };
+    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue(mockUser);
+
+    // Mock failed backend response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      json: () => Promise.resolve({ message: 'Backend authentication failed' }),
+    });
+
+    render(<Login />);
+
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
+    });
+
+    // Check error message
     await waitFor(() => {
       expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
     });
   });
 
-  it('handles API error', async () => {
-    // Mock successful Firebase authentication
-    const mockUser = {
-      uid: 'test-uid',
-      email: 'test@example.com',
-      displayName: 'Test User',
-      getIdToken: jest.fn().mockResolvedValue('mock-token'),
-    };
-    
-    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue({
-      user: mockUser,
+  it('handles unknown errors', async () => {
+    // Mock unknown error
+    (signInWithEmailAndPassword as jest.Mock).mockRejectedValue(new Error('Unknown error'));
+
+    render(<Login />);
+
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
     });
 
-    // Mock failed API response
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-      json: () => Promise.resolve({ message: 'Invalid request', details: 'Missing required fields' }),
+    // Check error message
+    await waitFor(() => {
+      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
+    });
+  });
+
+  it('handles non-Error type errors', async () => {
+    // Mock non-Error type error
+    (signInWithEmailAndPassword as jest.Mock).mockRejectedValue('string error');
+
+    render(<Login />);
+
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
+    });
+
+    // Check error message
+    await waitFor(() => {
+      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
+    });
+  });
+
+  it('disables submit button during loading', async () => {
+    // Mock a slow response to ensure loading state is visible
+    (signInWithEmailAndPassword as jest.Mock).mockImplementation(() => 
+      new Promise((resolve) => setTimeout(resolve, 100))
+    );
+
+    render(<Login />);
+
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByRole('button', { name: /ingresar/i }));
+    });
+
+    // Check button is disabled and shows loading text
+    const submitButton = screen.getByRole('button', { name: /ingresando/i });
+    expect(submitButton).toBeDisabled();
+    expect(submitButton).toHaveTextContent('Ingresando...');
+  });
+
+  it('redirects to home page after successful login', async () => {
+    // Mock successful Firebase auth
+    const mockUser = {
+      user: {
+        email: 'test@example.com',
+        displayName: 'Test User',
+        uid: '123',
+        getIdToken: jest.fn().mockResolvedValue('mock-token'),
+      },
+    };
+    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue(mockUser);
+
+    // Mock successful backend response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ access_token: 'mock-access-token' }),
+    });
+
+    // Mock window.location
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, href: '' },
+      writable: true,
     });
 
     render(<Login />);
 
-    // Fill in the form
-    fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
-      target: { value: 'test@example.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
-      target: { value: 'password123' },
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
     });
 
-    // Submit the form
-    fireEvent.click(screen.getByText('Ingresar'));
+    // Wait for the redirect
+    await waitFor(() => {
+      expect(window.location.href).toBe('/');
+    });
 
-    // Wait for error message
+    // Restore window.location
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  it('handles error instance check correctly', async () => {
+    // Mock successful Firebase auth
+    const mockUser = {
+      user: {
+        email: 'test@example.com',
+        displayName: 'Test User',
+        uid: '123',
+        getIdToken: jest.fn().mockResolvedValue('mock-token'),
+      },
+    };
+    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue(mockUser);
+
+    // First test: Error instance
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Backend error'));
+
+    render(<Login />);
+
+    await act(async () => {
+      // Fill form
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form
+      fireEvent.click(screen.getByText('Ingresar'));
+    });
+
+    // Verify error message for Error instance
+    await waitFor(() => {
+      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
+    });
+
+    // Clear the form
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: '' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: '' },
+      });
+    });
+
+    // Second test: Non-Error instance
+    (global.fetch as jest.Mock).mockRejectedValueOnce('string error');
+
+    await act(async () => {
+      // Fill form again
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form again
+      fireEvent.click(screen.getByText('Ingresar'));
+    });
+
+    // Verify error message for non-Error instance
     await waitFor(() => {
       expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
     });
