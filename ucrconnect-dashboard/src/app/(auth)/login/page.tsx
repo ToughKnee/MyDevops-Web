@@ -1,15 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { useSearchParams } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check for logout parameter
+    const logoutStatus = searchParams.get('logout');
+    if (logoutStatus === 'success') {
+      toast.success('Sesión cerrada exitosamente', {
+        duration: 2000,
+        position: 'top-center',
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      });
+    } else if (logoutStatus === 'error') {
+      toast.error('Error al cerrar sesión', {
+        duration: 2000,
+        position: 'top-center',
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

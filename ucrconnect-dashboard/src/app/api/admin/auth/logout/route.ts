@@ -1,13 +1,8 @@
-import { NextResponse } from 'next/server';
-import { getDbClient } from '@/lib/db';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function POST() {
     try {
-        const client = await getDbClient();
-        const cookieStore = await cookies();
-        const access_token = cookieStore.get('access_token')?.value;
-
         // Create a response
         const response = NextResponse.json({ message: 'Logged out successfully' });
         

@@ -373,8 +373,8 @@ describe('Login Page', () => {
     };
     (signInWithEmailAndPassword as jest.Mock).mockResolvedValue(mockUser);
 
-    // First test: Error instance
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Backend error'));
+    // First test: Error instance with specific error message
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('auth/invalid-credential'));
 
     render(<Login />);
 
@@ -391,9 +391,9 @@ describe('Login Page', () => {
       fireEvent.click(screen.getByText('Ingresar'));
     });
 
-    // Verify error message for Error instance
+    // Verify error message for Error instance with specific message
     await waitFor(() => {
-      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
+      expect(screen.getByText('Nombre de usuario o contraseña incorrectos.')).toBeInTheDocument();
     });
 
     // Clear the form
@@ -423,6 +423,37 @@ describe('Login Page', () => {
     });
 
     // Verify error message for non-Error instance
+    await waitFor(() => {
+      expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
+    });
+
+    // Clear the form again
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: '' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: '' },
+      });
+    });
+
+    // Third test: Error instance with unknown error
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('unknown error'));
+
+    await act(async () => {
+      // Fill form again
+      fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), {
+        target: { value: 'test@example.com' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+        target: { value: 'password123' },
+      });
+
+      // Submit form again
+      fireEvent.click(screen.getByText('Ingresar'));
+    });
+
+    // Verify error message for unknown error
     await waitFor(() => {
       expect(screen.getByText('Ha ocurrido un error durante el inicio de sesión.')).toBeInTheDocument();
     });
