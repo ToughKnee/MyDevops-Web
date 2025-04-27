@@ -2,6 +2,9 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import Header from '../header';
 import '@testing-library/jest-dom';
 
+// Mock Node.js timers
+jest.useFakeTimers();
+
 // Mock Firebase
 jest.mock('firebase/app', () => ({
     initializeApp: jest.fn(),
@@ -33,17 +36,14 @@ describe('Header Component', () => {
         // Reset mocks before each test
         jest.clearAllMocks();
 
-        // Mock setTimeout and clearTimeout
-        jest.useFakeTimers();
-
         // Default mock for usePathname
         const { usePathname } = require('next/navigation');
         usePathname.mockReturnValue('/');
     });
 
     afterEach(() => {
-        // Restore timers after each test
-        jest.useRealTimers();
+        // Clear all timers after each test
+        jest.clearAllTimers();
     });
 
     it('displays different section titles based on pathname', () => {
@@ -333,5 +333,153 @@ describe('Header Component', () => {
 
         // Clean up
         consoleSpy.mockRestore();
+    });
+
+    it('clears cookies during logout', async () => {
+        // Mock document.cookie
+        const cookies: Record<string, string> = {
+            'test1': 'value1',
+            'test2': 'value2'
+        };
+
+        Object.defineProperty(document, 'cookie', {
+            get: () => Object.entries(cookies)
+                .map(([name, value]) => `${name}=${value}`)
+                .join('; '),
+            set: (value: string) => {
+                const [name] = value.split('=');
+                if (value.includes('expires=')) {
+                    delete cookies[name];
+                } else {
+                    const [name, val] = value.split('=');
+                    cookies[name] = val;
+                }
+            },
+            configurable: true
+        });
+
+        // Mock fetch
+        const mockFetch = jest.fn().mockResolvedValue({
+            ok: true
+        });
+        global.fetch = mockFetch;
+
+        // Mock Firebase signOut
+        const { signOut } = require('firebase/auth');
+        signOut.mockResolvedValue(undefined);
+
+        // Mock window.location
+        const mockLocation = { href: '' };
+        Object.defineProperty(window, 'location', {
+            value: mockLocation,
+            writable: true
+        });
+
+        render(<Header />);
+        
+        // Click profile button to open dropdown
+        fireEvent.click(screen.getByAltText('profile'));
+        
+        // Fast-forward timers
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Click logout button
+        fireEvent.click(screen.getByText('Cerrar sesión'));
+
+        // Wait for fetch to complete
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        // Verify cookies were cleared
+        expect(document.cookie).toBe('');
+    });
+
+    it('closes profile dropdown when settings button is clicked', async () => {
+        render(<Header />);
+
+        // Click profile button to open profile dropdown
+        fireEvent.click(screen.getByAltText('profile'));
+        
+        // Fast-forward timers
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Profile dropdown should be visible
+        expect(screen.getByText('Ver perfil')).toBeInTheDocument();
+
+        // Click settings button
+        fireEvent.click(screen.getByAltText('Settings'));
+
+        // Fast-forward timers for closing profile
+        act(() => {
+            jest.advanceTimersByTime(150);
+        });
+
+        // Fast-forward timers for opening settings
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Profile dropdown should be closed and settings should be open
+        expect(screen.queryByText('Ver perfil')).not.toBeInTheDocument();
+        expect(screen.getByText('Configuraciones')).toBeInTheDocument();
+    });
+
+    it('closes profile dropdown when notifications button is clicked', async () => {
+        render(<Header />);
+
+        // Click profile button to open profile dropdown
+        fireEvent.click(screen.getByAltText('profile'));
+        
+        // Fast-forward timers
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Profile dropdown should be visible
+        expect(screen.getByText('Ver perfil')).toBeInTheDocument();
+
+        // Click notifications button
+        fireEvent.click(screen.getByAltText('Notifications'));
+
+        // Fast-forward timers for closing profile
+        act(() => {
+            jest.advanceTimersByTime(150);
+        });
+
+        // Fast-forward timers for opening notifications
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Profile dropdown should be closed and notifications should be open
+        expect(screen.queryByText('Ver perfil')).not.toBeInTheDocument();
+        expect(screen.getByText('Notifications')).toBeInTheDocument();
+    });
+
+    it('cleans up all timeouts when unmounted', () => {
+        const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+        const { unmount } = render(<Header />);
+
+        // Click all buttons to create timeouts
+        fireEvent.click(screen.getByAltText('Settings'));
+        fireEvent.click(screen.getByAltText('Notifications'));
+        fireEvent.click(screen.getByAltText('profile'));
+
+        // Fast-forward timers to ensure timeouts are created
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Unmount component
+        unmount();
+
+        // Should clean up all timeouts
+        expect(clearTimeoutSpy).toHaveBeenCalled();
     });
 });

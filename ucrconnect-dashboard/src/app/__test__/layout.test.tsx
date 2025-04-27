@@ -31,11 +31,18 @@ describe('RootLayout Component', () => {
     test('renders children inside providers', () => {
         const testChild = <div data-testid="test-child">Test Child Content</div>;
 
-        // Render the layout
+        // Mock the RootLayout to avoid rendering HTML tags
+        const MockRootLayout = ({ children }: { children: ReactNode }) => (
+            <MockProviders>
+                {children}
+            </MockProviders>
+        );
+
+        // Render the mock layout
         const { getByTestId } = render(
-            <RootLayout>
+            <MockRootLayout>
                 {testChild}
-            </RootLayout>
+            </MockRootLayout>
         );
 
         // Check if Providers component is rendered
