@@ -13,6 +13,7 @@ jest.mock('firebase/auth', () => ({
         currentUser: null,
         onAuthStateChanged: jest.fn(),
     })),
+    signOut: jest.fn(),
 }));
 
 // Mock next/navigation
@@ -221,5 +222,116 @@ describe('Header Component', () => {
 
         // Should clean up timeouts
         expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it('handles successful logout', async () => {
+        // Mock fetch
+        const mockFetch = jest.fn().mockResolvedValue({
+            ok: true
+        });
+        global.fetch = mockFetch;
+
+        // Mock Firebase signOut to succeed
+        const { signOut } = require('firebase/auth');
+        signOut.mockResolvedValue(undefined);
+
+        // Mock window.location
+        const mockLocation = { href: '' };
+        Object.defineProperty(window, 'location', {
+            value: mockLocation,
+            writable: true
+        });
+
+        render(<Header />);
+        
+        // Click profile button to open dropdown
+        fireEvent.click(screen.getByAltText('profile'));
+        
+        // Fast-forward timers
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Click logout button
+        fireEvent.click(screen.getByText('Cerrar sesión'));
+
+        // Wait for fetch to complete
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        // Verify fetch was called
+        expect(mockFetch).toHaveBeenCalledWith('/api/admin/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // Verify Firebase signOut was called
+        expect(signOut).toHaveBeenCalled();
+
+        // Verify redirect
+        expect(window.location.href).toBe('/login?logout=success');
+    });
+
+    it('handles logout error', async () => {
+        // Mock fetch to fail
+        const mockFetch = jest.fn().mockResolvedValue({
+            ok: false
+        });
+        global.fetch = mockFetch;
+
+        // Mock Firebase signOut to fail
+        const { signOut } = require('firebase/auth');
+        signOut.mockRejectedValue(new Error('Firebase error'));
+
+        // Mock window.location
+        const mockLocation = { href: '' };
+        Object.defineProperty(window, 'location', {
+            value: mockLocation,
+            writable: true
+        });
+
+        // Mock console.error
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        render(<Header />);
+        
+        // Click profile button to open dropdown
+        fireEvent.click(screen.getByAltText('profile'));
+        
+        // Fast-forward timers
+        act(() => {
+            jest.advanceTimersByTime(50);
+        });
+
+        // Click logout button
+        fireEvent.click(screen.getByText('Cerrar sesión'));
+
+        // Wait for fetch to complete
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        // Verify fetch was called
+        expect(mockFetch).toHaveBeenCalledWith('/api/admin/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // Verify Firebase signOut was called
+        expect(signOut).toHaveBeenCalled();
+
+        // Verify error was logged
+        expect(consoleSpy).toHaveBeenCalledWith('Failed to logout from backend');
+
+        // Verify redirect
+        expect(window.location.href).toBe('/login?logout=error');
+
+        // Clean up
+        consoleSpy.mockRestore();
     });
 });
